@@ -17,6 +17,9 @@ app.use(morgan("dev"));
 mongoose.connect(process.env.DB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  ssl: true,
+  tls: true,
+  tlsAllowInvalidCertificates: false,
 });
 
 const db = mongoose.connection;
