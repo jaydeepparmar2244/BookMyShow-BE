@@ -17,7 +17,7 @@ router.post("/new", protect, adminOnly, createScreen);
 router.get("/", getAllScreens);
 
 // Get screens by theatre ID (Public)
-router.get("/theatre/:theatreId", getScreensByTheatre);
+router.get("/theatre/:theatreId/screens", getScreensByTheatre);
 
 // Update a screen (Admin Only)
 router.put("/:screenId", protect, adminOnly, updateScreen);
