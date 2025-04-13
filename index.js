@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const userRoutes = require("./routes/userRoutes");
 const movieRoutes = require("./routes/movies");
 const theatreRoutes = require("./routes/theatreRoutes");
+const screenRoutes = require("./routes/screens");
 const methodOverride = require("method-override");
 const cors = require("cors");
 const app = express();
@@ -32,7 +33,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/theatres", theatreRoutes);
 app.use("/api/movies", movieRoutes);
 
-app.use("/api/screens", theatreRoutes);
+app.use("/api/screens", screenRoutes);
 
 app.use((req, res) => {
   res.status(404).send("Not found!");
