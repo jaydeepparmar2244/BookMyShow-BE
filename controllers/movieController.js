@@ -3,7 +3,11 @@ const Movie = require("../models/Movies");
 // Create a new movie
 const createMovie = async (req, res) => {
   try {
-    const movie = new Movie(req.body);
+    const posterUrl = req.file?.path; // Cloudinary URL
+    const movie = new Movie({
+      ...req.body,
+      image: posterUrl,
+    });
     await movie.save();
     res.status(201).json(movie);
   } catch (error) {
@@ -35,13 +39,20 @@ const getMovieById = async (req, res) => {
 // Update a movie
 const updateMovie = async (req, res) => {
   try {
+    const updateData = { ...req.body };
+    if (req.file?.path) {
+      updateData.image = req.file.path;
+    }
+
     const updatedMovie = await Movie.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true }
     );
+
     if (!updatedMovie)
       return res.status(404).json({ message: "Movie not found" });
+
     res.json(updatedMovie);
   } catch (error) {
     res.status(500).json({ error: error.message });

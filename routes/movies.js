@@ -7,11 +7,12 @@ const {
   deleteMovie,
 } = require("../controllers/movieController");
 const { protect, adminOnly } = require("../middleware/authMiddleware");
+const parser = require("../middleware/multer"); // path to your multer setup
 
 const router = express.Router();
 
 // Create a new movie (Admin Only)
-router.post("/new", protect, adminOnly, createMovie);
+router.post("/new", parser.single("image"), protect, adminOnly, createMovie);
 
 // Get all movies (Public)
 router.get("/", getAllMovies);
@@ -20,7 +21,7 @@ router.get("/", getAllMovies);
 router.get("/:id", getMovieById);
 
 // Update movie (Admin Only)
-router.put("/:id", protect, adminOnly, updateMovie);
+router.put("/:id", parser.single("image"), protect, adminOnly, updateMovie);
 
 // Delete movie (Admin Only)
 router.delete("/:id", protect, adminOnly, deleteMovie);

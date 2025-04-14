@@ -53,6 +53,10 @@ const MoviesSchema = new Schema(
       min: [0, "Rating cannot be less than 0"],
       max: [5, "Rating cannot be more than 10"],
     },
+    image: {
+      type: String, // this will store the secure URL from Cloudinary
+      required: [true, "Movie poster is required"],
+    },
   },
   { timestamps: true }
 );
