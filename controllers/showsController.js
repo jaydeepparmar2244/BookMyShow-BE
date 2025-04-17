@@ -16,7 +16,7 @@ const getAllShows = async (req, res) => {
   try {
     const shows = await Show.find()
       .populate("movie", "movie_name")
-      .populate("theatre", "theatre_name")
+      .populate("theatre", "theatre_name city")
       .populate("screen", "screen_name");
     res.status(200).json(shows);
   } catch (error) {

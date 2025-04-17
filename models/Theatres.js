@@ -13,6 +13,21 @@ const TheatresSchema = new Schema(
       required: [true, "Location is required"],
       minlength: [3, "Location must be at least 3 characters long"],
     },
+    city: {
+      type: String,
+      required: [true, "City is required"],
+      enum: [
+        "Mumbai",
+        "Delhi",
+        "Bangalore",
+        "Chennai",
+        "Kolkata",
+        "Hyderabad",
+        "Ahmedabad",
+        "Jaipur",
+        "Pune",
+      ],
+    },
     total_screens: {
       type: Number,
       required: [true, "Total screens are required"],
