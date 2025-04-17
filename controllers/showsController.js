@@ -24,6 +24,64 @@ const getAllShows = async (req, res) => {
   }
 };
 
+// Get screens by a city
+const getShowsByCity = async (req, res) => {
+  const { city } = req.params;
+
+  try {
+    const shows = await Show.aggregate([
+      {
+        $lookup: {
+          from: "theatres", // exact name of the collection in MongoDB
+          localField: "theatre",
+          foreignField: "_id",
+          as: "theatreDetails",
+        },
+      },
+      { $unwind: "$theatreDetails" },
+      {
+        $match: {
+          "theatreDetails.city": city,
+        },
+      },
+      {
+        $lookup: {
+          from: "movies",
+          localField: "movie",
+          foreignField: "_id",
+          as: "movieDetails",
+        },
+      },
+      { $unwind: "$movieDetails" },
+      {
+        $lookup: {
+          from: "screens",
+          localField: "screen",
+          foreignField: "_id",
+          as: "screenDetails",
+        },
+      },
+      { $unwind: "$screenDetails" },
+      {
+        $project: {
+          movie_name: "$movieDetails.movie_name",
+          genre: "$movieDetails.genre",
+          theatre_name: "$theatreDetails.theatre_name",
+          city: "$theatreDetails.city",
+          screen_name: "$screenDetails.screen_name",
+          show_time: "$show_time",
+          available_seats: 1,
+          price_per_seat: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json(shows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get screens by theatre ID
 const getShowsOfTheatre = async (req, res) => {
   try {
@@ -67,4 +125,5 @@ module.exports = {
   getAllShows,
   updateShow,
   deleteShow,
+  getShowsByCity,
 };

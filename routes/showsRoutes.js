@@ -4,6 +4,7 @@ const {
   getAllShows,
   updateShow,
   deleteShow,
+  getShowsByCity,
 } = require("../controllers/showsController");
 const { protect, adminOnly } = require("../middleware/authMiddleware");
 
@@ -14,6 +15,9 @@ router.post("/new", protect, adminOnly, createShow);
 
 // Get all movies (Public)
 router.get("/", getAllShows);
+
+// Get all movies (Public)
+router.get("/city/:city", getShowsByCity);
 
 // Get single movie by ID (Public)
 // router.get("/:id", getMovieById);
