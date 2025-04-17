@@ -19,9 +19,9 @@ router.get("/", getAllShows);
 // router.get("/:id", getMovieById);
 
 // Update movie (Admin Only)
-router.put("/:id", protect, adminOnly, updateShow);
+router.put("/:showId", protect, adminOnly, updateShow);
 
 // Delete movie (Admin Only)
-router.delete("/:id", protect, adminOnly, deleteShow);
+router.delete("/:showId", protect, adminOnly, deleteShow);
 
 module.exports = router;
