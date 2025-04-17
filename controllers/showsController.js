@@ -65,10 +65,16 @@ const getShowsByCity = async (req, res) => {
       {
         $project: {
           movie_name: "$movieDetails.movie_name",
+          image: "$movieDetails.image",
+          language: "$movieDetails.language",
+          description: "$movieDetails.description",
+          release_date: "$movieDetails.release_date",
+          rating: "$movieDetails.rating",
           genre: "$movieDetails.genre",
           theatre_name: "$theatreDetails.theatre_name",
           city: "$theatreDetails.city",
           screen_name: "$screenDetails.screen_name",
+          screen_type: "$screenDetails.screen_type",
           show_time: "$show_time",
           available_seats: 1,
           price_per_seat: 1,
