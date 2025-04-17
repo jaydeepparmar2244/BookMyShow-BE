@@ -3,9 +3,10 @@ const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const userRoutes = require("./routes/userRoutes");
-const movieRoutes = require("./routes/movies");
+const movieRoutes = require("./routes/movieRoutes");
 const theatreRoutes = require("./routes/theatreRoutes");
-const screenRoutes = require("./routes/screens");
+const showsRoutes = require("./routes/showsRoutes");
+const screenRoutes = require("./routes/screenRoutes");
 const methodOverride = require("method-override");
 const cors = require("cors");
 const app = express();
@@ -32,6 +33,7 @@ db.once("open", () => {
 app.use("/api/users", userRoutes);
 app.use("/api/theatres", theatreRoutes);
 app.use("/api/movies", movieRoutes);
+app.use("/api/shows", showsRoutes);
 
 app.use("/api/screens", screenRoutes);
 
