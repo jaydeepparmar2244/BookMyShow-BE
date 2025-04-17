@@ -14,7 +14,10 @@ const createShow = async (req, res) => {
 // Get all screens
 const getAllShows = async (req, res) => {
   try {
-    const shows = await Show.find().populate("movie", "theatre");
+    const shows = await Show.find()
+      .populate("movie", "movie_name")
+      .populate("theatre", "theatre_name")
+      .populate("screen", "screen_name");
     res.status(200).json(shows);
   } catch (error) {
     res.status(500).json({ error: error.message });
