@@ -38,7 +38,6 @@ const ScreensSchema = new Schema(
       {
         start_time: { type: String, required: true }, // Format: "HH:mm AM/PM"
         end_time: { type: String, required: true },
-        format: { type: String, enum: ["2D", "3D", "IMAX"], required: true },
       },
     ],
   },

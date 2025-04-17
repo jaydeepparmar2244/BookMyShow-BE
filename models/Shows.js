@@ -19,17 +19,13 @@ const ShowsSchema = new Schema(
       required: [true, "Screen ID is required"],
     },
     show_time: {
-      type: Date,
-      required: [true, "Show time is required"],
+      start_time: { type: String, required: true }, // Format: "HH:mm AM/PM"
+      end_time: { type: String, required: true },
     },
     available_seats: {
       type: Number,
       required: true,
       min: [1, "There must be at least 1 available seat"],
-    },
-    total_seats: {
-      type: Number,
-      required: true,
     },
     price_per_seat: {
       type: Number,
