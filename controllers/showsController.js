@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Show = require("../models/Shows");
 
 // Create a new screen
@@ -32,7 +33,7 @@ const getShowsByCity = async (req, res) => {
     const shows = await Show.aggregate([
       {
         $lookup: {
-          from: "theatres", // exact name of the collection in MongoDB
+          from: "theatres",
           localField: "theatre",
           foreignField: "_id",
           as: "theatreDetails",
@@ -123,14 +124,14 @@ const getMoviesByCity = async (req, res) => {
       { $unwind: "$movieDetails" },
       {
         $project: {
-          _id: 0,
           movieId: "$movieDetails._id",
           movie_name: "$movieDetails.movie_name",
           image: "$movieDetails.image",
           language: "$movieDetails.language",
-          genre: "$movieDetails.genre",
-          rating: "$movieDetails.rating",
+          description: "$movieDetails.description",
           release_date: "$movieDetails.release_date",
+          rating: "$movieDetails.rating",
+          genre: "$movieDetails.genre",
         },
       },
     ]);
@@ -141,7 +142,6 @@ const getMoviesByCity = async (req, res) => {
   }
 };
 
-// Get screens by theatre ID
 const getShowsByMovieInCity = async (req, res) => {
   const { movieId, city } = req.params;
 
@@ -228,7 +228,7 @@ const updateShow = async (req, res) => {
 // Delete a screen
 const deleteShow = async (req, res) => {
   try {
-    const deletedShow = await Screen.findByIdAndDelete(req.params.showId);
+    const deletedShow = await Show.findByIdAndDelete(req.params.showId);
     if (!deletedShow) return res.status(404).json({ error: "Show not found" });
     res.status(200).json({ message: "Show deleted successfully" });
   } catch (error) {

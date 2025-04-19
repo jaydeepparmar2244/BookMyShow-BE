@@ -25,7 +25,7 @@ router.get("/city/:city", getShowsByCity);
 router.get("/movies/:city", getMoviesByCity);
 
 // Get Shows by Movie in City
-router.get("/:movieId/:city", getShowsByMovieInCity);
+router.get("/movie/:movieId/city/:city", getShowsByMovieInCity);
 
 // Update movie (Admin Only)
 router.put("/:showId", protect, adminOnly, updateShow);
