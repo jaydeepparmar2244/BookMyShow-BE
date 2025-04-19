@@ -186,25 +186,51 @@ const getShowsByMovieInCity = async (req, res) => {
       { $unwind: "$screenDetails" },
       {
         $project: {
-          movie_name: "$movieDetails.movie_name",
-          image: "$movieDetails.image",
-          language: "$movieDetails.language",
-          description: "$movieDetails.description",
-          release_date: "$movieDetails.release_date",
-          rating: "$movieDetails.rating",
-          genre: "$movieDetails.genre",
+          available_seats: 1,
+          price_per_seat: 1,
           theatre_name: "$theatreDetails.theatre_name",
           city: "$theatreDetails.city",
           screen_name: "$screenDetails.screen_name",
           screen_type: "$screenDetails.screen_type",
           show_time: "$show_time",
-          available_seats: 1,
-          price_per_seat: 1,
+          movieDetails: {
+            movie_name: "$movieDetails.movie_name",
+            image: "$movieDetails.image",
+            language: "$movieDetails.language",
+            description: "$movieDetails.description",
+            release_date: "$movieDetails.release_date",
+            rating: "$movieDetails.rating",
+            genre: "$movieDetails.genre",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$movieDetails",
+          shows: {
+            $push: {
+              _id: "$_id",
+              available_seats: "$available_seats",
+              price_per_seat: "$price_per_seat",
+              theatre_name: "$theatre_name",
+              city: "$city",
+              screen_name: "$screen_name",
+              screen_type: "$screen_type",
+              show_time: "$show_time",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          movie: "$_id",
+          shows: 1,
         },
       },
     ]);
 
-    res.status(200).json(shows);
+    res.status(200).json(shows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
