@@ -88,13 +88,107 @@ const getShowsByCity = async (req, res) => {
   }
 };
 
-// Get screens by theatre ID
-const getShowsOfTheatre = async (req, res) => {
+const getMoviesByCity = async (req, res) => {
+  const { city } = req.params;
+
   try {
-    const screens = await Screen.find({
-      theatre_id: req.params.theatreId,
-    }).populate("theatre_id");
-    res.status(200).json(screens);
+    const movies = await Show.aggregate([
+      {
+        $lookup: {
+          from: "theatres",
+          localField: "theatre",
+          foreignField: "_id",
+          as: "theatreDetails",
+        },
+      },
+      { $unwind: "$theatreDetails" },
+      {
+        $match: {
+          "theatreDetails.city": city,
+        },
+      },
+      {
+        $group: {
+          _id: "$movie",
+        },
+      },
+      {
+        $lookup: {
+          from: "movies",
+          localField: "_id",
+          foreignField: "_id",
+          as: "movieDetails",
+        },
+      },
+      { $unwind: "$movieDetails" },
+      {
+        $project: {
+          _id: 0,
+          movieId: "$movieDetails._id",
+          movie_name: "$movieDetails.movie_name",
+          image: "$movieDetails.image",
+          language: "$movieDetails.language",
+          genre: "$movieDetails.genre",
+          rating: "$movieDetails.rating",
+          release_date: "$movieDetails.release_date",
+        },
+      },
+    ]);
+
+    res.status(200).json(movies);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get screens by theatre ID
+const getShowsByMovieInCity = async (req, res) => {
+  const { movieId, city } = req.params;
+
+  try {
+    const shows = await Show.aggregate([
+      {
+        $match: {
+          movie: new mongoose.Types.ObjectId(movieId),
+        },
+      },
+      {
+        $lookup: {
+          from: "theatres",
+          localField: "theatre",
+          foreignField: "_id",
+          as: "theatreDetails",
+        },
+      },
+      { $unwind: "$theatreDetails" },
+      {
+        $match: {
+          "theatreDetails.city": city,
+        },
+      },
+      {
+        $lookup: {
+          from: "screens",
+          localField: "screen",
+          foreignField: "_id",
+          as: "screenDetails",
+        },
+      },
+      { $unwind: "$screenDetails" },
+      {
+        $project: {
+          show_time: 1,
+          available_seats: 1,
+          price_per_seat: 1,
+          screen_name: "$screenDetails.screen_name",
+          screen_type: "$screenDetails.screen_type",
+          theatre_name: "$theatreDetails.theatre_name",
+          city: "$theatreDetails.city",
+        },
+      },
+    ]);
+
+    res.status(200).json(shows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -132,4 +226,6 @@ module.exports = {
   updateShow,
   deleteShow,
   getShowsByCity,
+  getMoviesByCity,
+  getShowsByMovieInCity,
 };
