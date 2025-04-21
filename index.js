@@ -9,6 +9,7 @@ const showsRoutes = require("./routes/showsRoutes");
 const screenRoutes = require("./routes/screenRoutes");
 const methodOverride = require("method-override");
 const cors = require("cors");
+const bookingsRoutes = require("./routes/bookingsRoutes");
 const app = express();
 
 app.use(cors());
@@ -34,8 +35,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/theatres", theatreRoutes);
 app.use("/api/movies", movieRoutes);
 app.use("/api/shows", showsRoutes);
-
 app.use("/api/screens", screenRoutes);
+app.use("/api/bookings", bookingsRoutes);
 
 app.use((req, res) => {
   res.status(404).send("Not found!");
