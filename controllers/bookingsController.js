@@ -34,10 +34,10 @@ const createBooking = async (req, res) => {
     }
 
     // Check seat availability
-    if (existingShow.available_seats < seats.length) {
+    if (existingShow.available_seats < number_of_seats) {
       return res.status(400).json({
         success: false,
-        error: "Not enough seats available"
+        error: `Not enough seats available. Only ${existingShow.available_seats} seats left.`
       });
     }
 
@@ -59,8 +59,8 @@ const createBooking = async (req, res) => {
 
     const booking = await Booking.create(bookingData);
 
-    // Update available seats
-    existingShow.available_seats -= seats.length;
+    // Update available seats based on number_of_seats
+    existingShow.available_seats -= Number(number_of_seats);
     await existingShow.save();
 
     res.status(201).json({
