@@ -1,46 +1,62 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
-const BookingsSchema = new Schema(
+const BookingsSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, "Name is required"],
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: [true, "Email is required"],
-      match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
-    },
-    phone: {
-      type: String,
-      required: [true, "Phone number is required"],
-      match: [/^\d{10}$/, "Phone number must be 10 digits"],
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+      required: true,
     },
     show: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Shows",
-      required: [true, "Show ID is required"],
+      required: true,
     },
-    number_of_seats: {
-      type: Number,
-      required: [true, "Number of seats is required"],
-      min: [1, "At least one seat must be booked"],
-    },
-    show_date: {
-      type: String,
-      required: [true, "Show date is required"],
-      match: [/^\d{2}-\d{2}-\d{4}$/, "Date must be in DD-MM-YYYY format"],
+    seats: {
+      type: [String],
+      required: true,
+      validate: {
+        validator: function (v) {
+          return v.length > 0;
+        },
+        message: "At least one seat must be selected",
+      },
     },
     total_amount: {
       type: Number,
-      required: [true, "Total amount is required"],
-      min: [1, "Total amount must be at least 1"],
+      required: true,
+      min: 1,
     },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Users",
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    number_of_seats: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    show_date: {
+      type: Date,
+      required: true,
+    },
+    booking_reference: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["Confirmed", "Pending", "Cancelled"],
+      default: "Pending",
     },
   },
   { timestamps: true }
@@ -50,8 +66,8 @@ const BookingsSchema = new Schema(
 BookingsSchema.pre("save", async function (next) {
   if (!this.booking_reference) {
     const timestamp = Date.now().toString();
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
-    this.booking_reference = `BK${timestamp}${random}`;
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    this.booking_reference = `BMS${timestamp}${random}`;
   }
   next();
 });

@@ -32,38 +32,19 @@ const createBooking = async (req, res) => {
       });
     }
 
-    // Create booking with retry for unique booking reference
-    let booking;
-    let retries = 3;
-    while (retries > 0) {
-      try {
-        booking = await Booking.create({
-          user: req.user._id,
-          show,
-          seats,
-          total_amount,
-          name,
-          email,
-          phone,
-          number_of_seats,
-          show_date,
-          status: "Confirmed"
-        });
-        break;
-      } catch (error) {
-        if (error.code === 11000 && error.keyPattern.booking_reference) {
-          retries--;
-          if (retries === 0) {
-            return res.status(500).json({
-              success: false,
-              error: "Failed to generate unique booking reference. Please try again."
-            });
-          }
-          continue;
-        }
-        throw error;
-      }
-    }
+    // Create booking
+    const booking = await Booking.create({
+      user: req.user._id,
+      show,
+      seats,
+      total_amount,
+      name,
+      email,
+      phone,
+      number_of_seats,
+      show_date,
+      status: "Confirmed"
+    });
 
     // Update available seats
     existingShow.available_seats -= seats.length;
@@ -75,6 +56,12 @@ const createBooking = async (req, res) => {
     });
   } catch (error) {
     console.error("Booking creation error:", error);
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        error: "A booking with these details already exists"
+      });
+    }
     res.status(500).json({
       success: false,
       error: error.message || "Failed to create booking"
