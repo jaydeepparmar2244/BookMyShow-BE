@@ -29,23 +29,14 @@ const BookingsSchema = new Schema(
       min: [1, "At least one seat must be booked"],
     },
     show_date: {
-      type: Date,
+      type: String,
       required: [true, "Show date is required"],
+      match: [/^\d{2}-\d{2}-\d{4}$/, "Date must be in DD-MM-YYYY format"],
     },
     total_amount: {
       type: Number,
       required: [true, "Total amount is required"],
       min: [1, "Total amount must be at least 1"],
-    },
-    status: {
-      type: String,
-      enum: ["Confirmed", "Pending", "Cancelled"],
-      default: "Confirmed",
-    },
-    booking_reference: {
-      type: String,
-      unique: true,
-      required: true,
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
