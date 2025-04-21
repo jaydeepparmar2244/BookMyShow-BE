@@ -5,7 +5,7 @@ const BookingsSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Users",
-      required: true,
+      required: false,
     },
     show: {
       type: mongoose.Schema.Types.ObjectId,
@@ -45,8 +45,14 @@ const BookingsSchema = new mongoose.Schema(
       min: 1,
     },
     show_date: {
-      type: Date,
+      type: String,
       required: true,
+      validate: {
+        validator: function(v) {
+          return /^\d{2}-\d{2}-\d{4}$/.test(v);
+        },
+        message: "Date must be in DD-MM-YYYY format"
+      }
     },
     booking_reference: {
       type: String,

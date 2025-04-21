@@ -15,6 +15,15 @@ const createBooking = async (req, res) => {
       });
     }
 
+    // Validate date format
+    const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
+    if (!dateRegex.test(show_date)) {
+      return res.status(400).json({
+        success: false,
+        error: "Date must be in DD-MM-YYYY format"
+      });
+    }
+
     // Check if show exists
     const existingShow = await Show.findById(show);
     if (!existingShow) {
@@ -34,7 +43,7 @@ const createBooking = async (req, res) => {
 
     // Create booking
     const booking = await Booking.create({
-      user: req.user._id,
+      user: req.user?._id, // Optional user ID if user is logged in
       show,
       seats,
       total_amount,
