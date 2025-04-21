@@ -5,68 +5,80 @@ const Show = require("../models/Shows");
 // Create a new booking
 const createBooking = async (req, res) => {
   try {
-    const { 
-      name, 
-      email, 
-      phone, 
-      show, 
-      number_of_seats, 
-      show_date, 
-      total_amount 
-    } = req.body;
-    
-    // Check if show exists and has enough seats
-    const showDetails = await Show.findById(show);
-    if (!showDetails) {
-      return res.status(404).json({ error: "Show not found" });
-    }
-    
-    if (showDetails.available_seats < number_of_seats) {
-      return res.status(400).json({ error: "Not enough seats available" });
-    }
+    const { show, seats, total_amount, name, email, phone, number_of_seats, show_date } = req.body;
 
-    // Validate show date
-    const bookingDate = new Date(show_date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (bookingDate < today) {
-      return res.status(400).json({ error: "Cannot book for past dates" });
-    }
-
-    // Create booking
-    const booking = new Booking({
-      name,
-      email,
-      phone,
-      show,
-      number_of_seats,
-      show_date,
-      total_amount,
-      user: req.user?._id // Optional, if user is logged in
-    });
-
-    // Update available seats in show
-    showDetails.available_seats -= number_of_seats;
-    await showDetails.save();
-    
-    const savedBooking = await booking.save();
-    
-    // Populate show details for response
-    const populatedBooking = await Booking.findById(savedBooking._id)
-      .populate("show", "show_time price_per_seat")
-      .populate({
-        path: "show",
-        populate: [
-          { path: "movie", select: "movie_name image" },
-          { path: "theatre", select: "theatre_name city" },
-          { path: "screen", select: "screen_name screen_type" }
-        ]
+    // Validate required fields
+    if (!show || !seats || !total_amount || !name || !email || !phone || !number_of_seats || !show_date) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields"
       });
+    }
 
-    res.status(201).json(populatedBooking);
+    // Check if show exists
+    const existingShow = await Show.findById(show);
+    if (!existingShow) {
+      return res.status(404).json({
+        success: false,
+        error: "Show not found"
+      });
+    }
+
+    // Check seat availability
+    if (existingShow.available_seats < seats.length) {
+      return res.status(400).json({
+        success: false,
+        error: "Not enough seats available"
+      });
+    }
+
+    // Create booking with retry for unique booking reference
+    let booking;
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        booking = await Booking.create({
+          user: req.user._id,
+          show,
+          seats,
+          total_amount,
+          name,
+          email,
+          phone,
+          number_of_seats,
+          show_date,
+          status: "Confirmed"
+        });
+        break;
+      } catch (error) {
+        if (error.code === 11000 && error.keyPattern.booking_reference) {
+          retries--;
+          if (retries === 0) {
+            return res.status(500).json({
+              success: false,
+              error: "Failed to generate unique booking reference. Please try again."
+            });
+          }
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    // Update available seats
+    existingShow.available_seats -= seats.length;
+    await existingShow.save();
+
+    res.status(201).json({
+      success: true,
+      data: booking
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Booking creation error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to create booking"
+    });
   }
 };
 
