@@ -58,6 +58,11 @@ const BookingsSchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: true,
+      default: function() {
+        const timestamp = Date.now().toString();
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        return `BMS${timestamp}${random}`;
+      }
     },
     status: {
       type: String,
@@ -68,14 +73,14 @@ const BookingsSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Generate a unique booking reference before saving
-BookingsSchema.pre("save", async function (next) {
-  if (!this.booking_reference) {
-    const timestamp = Date.now().toString();
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    this.booking_reference = `BMS${timestamp}${random}`;
-  }
-  next();
-});
+// Remove the pre-save hook since we're using default value
+// BookingsSchema.pre("save", async function (next) {
+//   if (!this.booking_reference) {
+//     const timestamp = Date.now().toString();
+//     const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+//     this.booking_reference = `BMS${timestamp}${random}`;
+//   }
+//   next();
+// });
 
 module.exports = mongoose.model("Bookings", BookingsSchema);

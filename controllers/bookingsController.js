@@ -41,19 +41,23 @@ const createBooking = async (req, res) => {
       });
     }
 
-    // Create booking
-    const booking = await Booking.create({
-      user: req.user?._id, // Optional user ID if user is logged in
+    // Create booking with all required fields
+    const bookingData = {
+      user: req.user?._id,
       show,
       seats,
-      total_amount,
+      total_amount: Number(total_amount),
       name,
       email,
       phone,
-      number_of_seats,
+      number_of_seats: Number(number_of_seats),
       show_date,
       status: "Confirmed"
-    });
+    };
+
+    console.log("Creating booking with data:", bookingData);
+
+    const booking = await Booking.create(bookingData);
 
     // Update available seats
     existingShow.available_seats -= seats.length;
