@@ -102,9 +102,13 @@ const getUserBookings = async (req, res) => {
       })
       .sort({ createdAt: -1 });
     
+    // Return empty array if no bookings found
+    if (!bookings || bookings.length === 0) {
+      return res.status(200).json([]);
+    }
+    
     res.status(200).json(bookings);
   } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 };
 
