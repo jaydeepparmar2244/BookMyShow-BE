@@ -15,6 +15,14 @@ const createBooking = async (req, res) => {
       });
     }
 
+    // Ensure user is authenticated
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        error: "You must be logged in to make a booking"
+      });
+    }
+
     // Validate date format
     const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
     if (!dateRegex.test(show_date)) {
@@ -43,7 +51,7 @@ const createBooking = async (req, res) => {
 
     // Create booking with all required fields
     const bookingData = {
-      user: req.user?._id,
+      user: req.user._id, // No optional chaining, user must exist
       show,
       seats,
       total_amount: Number(total_amount),
@@ -63,9 +71,21 @@ const createBooking = async (req, res) => {
     existingShow.available_seats -= Number(number_of_seats);
     await existingShow.save();
 
+    // Populate the booking with show details before sending response
+    const populatedBooking = await Booking.findById(booking._id)
+      .populate("show", "show_time price_per_seat")
+      .populate({
+        path: "show",
+        populate: [
+          { path: "movie", select: "movie_name image" },
+          { path: "theatre", select: "theatre_name city" },
+          { path: "screen", select: "screen_name screen_type" }
+        ]
+      });
+
     res.status(201).json({
       success: true,
-      data: booking
+      data: populatedBooking
     });
   } catch (error) {
     console.error("Booking creation error:", error);
