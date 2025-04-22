@@ -16,7 +16,7 @@ const createBooking = async (req, res) => {
     }
 
     // Ensure user is authenticated
-    if (!req.user || !req.user._id) {
+    if (!req.user || !req.user.id) {
       return res.status(401).json({
         success: false,
         error: "You must be logged in to make a booking"
@@ -51,7 +51,7 @@ const createBooking = async (req, res) => {
 
     // Create booking with all required fields
     const bookingData = {
-      user: req.user._id, // No optional chaining, user must exist
+      user: req.user.id, // No optional chaining, user must exist
       show,
       seats,
       total_amount: Number(total_amount),
@@ -63,7 +63,6 @@ const createBooking = async (req, res) => {
       status: "Confirmed"
     };
 
-    console.log("Creating booking with data:", bookingData);
 
     const booking = await Booking.create(bookingData);
 
@@ -88,7 +87,6 @@ const createBooking = async (req, res) => {
       data: populatedBooking
     });
   } catch (error) {
-    console.error("Booking creation error:", error);
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
